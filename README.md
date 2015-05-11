@@ -11,3 +11,6 @@ I made this because of University assignments requiring code printouts.
 (-main) takes one argument: a string for the path to the root dir of your
 project.
 
+## TODO
+
+Would be nice if we could parse .*ignore files to ignore files.
