@@ -11,13 +11,13 @@
 (defn dir-empty?     [f] (= (count (.listFiles f)) 0))
 (defn append-to-file [f contents] (spit f contents :append true))
 
-(defn make-filename 
+(defn make-filename
   "Give a file a relative path for its filename (and without slashes etc)."
   ([f parent]
-   (str 
+   (str
     (.substring
      (clojure.string/replace
-      (io/as-relative-path (or parent (.getParentFile f))) 
+      (io/as-relative-path (or parent (.getParentFile f)))
       #"\\|\/" "_")
      1)
     ".md"))
@@ -28,39 +28,40 @@
   "Get the programming language from the file extension. Defaults to the extension if
   none is found. This is for the markdown code blocks."
   [f]
-  (let [ext (get-extension f) 
-        filemap {:clj "clojure" 
-                 :js  "javascript" 
-                 :py  "python" 
-                 :rb  "ruby" 
-                 :txt ""}]
+  (let [ext (get-extension f)
+        filemap {:clj "clojure"
+                 :js  "javascript"
+                 :py  "python"
+                 :rb  "ruby"
+                 :txt ""
+                 :md  "markdown"}]
     ((keyword ext) filemap ext)))
 
 ;;; main program
 
-(defn work-dir 
+(defn work-dir
   "Create the initial file holding the contents of all sub-files of directory [dir]."
   [dir]
   (println (get-name dir))
   (append-to-file (make-filename dir)
                   (str "#" (get-name dir) "\n\n")))
 
-(defn work-file 
+(defn work-file
   "Append the contents of file [f] to the monolithical directory-representing file."
   [f]
   (println (get-name f))
   (append-to-file (make-filename f nil)
-                  (str "##" (get-name f) 
+                  (str "##" (get-name f)
                        "\n\n```" (get-language f) "\n"
-                       (slurp f) 
+                       (slurp f)
                        "\n```\n\n")))
 
-(defn printerino 
+(defn printerino
   "Compile all files (including subfiles) in the path [dir] into a (usually smaller) set of markdown files."
   [dir]
   (let [files (rest (file-seq dir))]
     (map #(if (is-dir? %)
-            (if (not (dir-empty? %)) 
+            (if (not (dir-empty? %))
               (work-dir %))
             (work-file %)) files)))
 
@@ -68,4 +69,3 @@
   "Application entrypoint."
   [arg1 & rest]
   (printerino (io/file arg1)))
-
