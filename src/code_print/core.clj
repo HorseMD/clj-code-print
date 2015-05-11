@@ -12,17 +12,21 @@
 (defn append-to-file [f contents] (spit f contents :append true))
 
 (defn make-filename 
-  "Give a file an absolute path for its filename (without slashes etc)."
+  "Give a file a relative path for its filename (and without slashes etc)."
   ([f parent]
    (str 
-    (get-name (or parent (.getParentFile f)))
+    (.substring
+     (clojure.string/replace
+      (io/as-relative-path (or parent (.getParentFile f))) 
+      #"\\|\/" "_")
+     1)
     ".md"))
   ([f]
    (make-filename f f)))
 
 (defn get-language
   "Get the programming language from the file extension. Defaults to the extension if
-none is found. This is for the markdown code blocks."
+  none is found. This is for the markdown code blocks."
   [f]
   (let [ext (get-extension f) 
         filemap {:clj "clojure" 
